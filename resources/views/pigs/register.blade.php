@@ -8,6 +8,11 @@
     </div>
     <div class="row mt-4">
         <div class="col-md-6 offset-md-3">
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
             <form action="/pigs/register" method="POST">
                 @csrf
                 <div class="form-group">
@@ -48,7 +53,7 @@
                 <div class="form-group">
                     <label for="status">Status <strong class="text-danger">*</strong></label>
                     <select class="form-control" id="status" name="status">
-                        <option value="fattenning">Fattenning</option>
+                        <option value="fattening">Fattening</option>
                         <option value="dead">Dead</option>
                         <option value="sold">Sold</option>
                         <option value="quarantine">Quarantine</option>

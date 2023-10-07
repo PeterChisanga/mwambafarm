@@ -8,6 +8,11 @@
     </div>
     <div class="row mt-4">
         <div class="col-md-6 offset-md-3">
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
             <form action="/sheep/edit/{{ $sheep->id }}" method="POST">
                 @csrf
                 <input type="hidden" class="form-control" id="sheep_id" name="sheep_id" value="{{ $sheep->id}}" >
@@ -53,7 +58,7 @@
                 <div class="form-group">
                     <label for="status">Status <strong class="text-danger">*</strong></label>
                     <select class="form-control" id="status" name="status">
-                        <option value="fattenning" @if($sheep->status == 'fattenning') selected @endif>Fattenning</option>
+                        <option value="fattening" @if($sheep->status == 'fattening') selected @endif>Fattening</option>
                         <option value="dead" @if($sheep->status == 'dead') selected @endif>Dead</option>
                         <option value="sold" @if($sheep->status == 'sold') selected @endif>Sold</option>
                         <option value="quarantine" @if($sheep->status == 'quarantine') selected @endif>Quarantine</option>

@@ -1,6 +1,5 @@
-<!-- <footer class="bg-dark text-white fixed-bottom"> -->
-<footer class="bg-dark text-white ">
-    <div class="container py-3">
+<footer class="bg-dark text-white " style="margin-top: 400px">
+    <div class="container py-3 ">
         <div class="text-center">
             <p>&copy; 2023 Farm Management System. All rights reserved.</p>
             <p>Designed and developed by Peter Chisanga MWAMBA</p>

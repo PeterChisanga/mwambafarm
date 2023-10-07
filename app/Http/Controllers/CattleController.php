@@ -9,7 +9,7 @@ class CattleController extends Controller
 {
     public function index()
     {
-        $cattle = Cattle::all();
+        $cattle = Cattle::whereNotIn('status',['dead','sold'])->get();
         return view('cattle.index', compact('cattle'));
     }
 
@@ -56,13 +56,43 @@ class CattleController extends Controller
 
     public function edit(Request $request)
     {
-        // Validation rules here...
+        if ($request->isMethod('post')) {
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'age' => 'nullable|integer|min:1',
+                'sex' => 'nullable|string|max:255',
+                'breed' => 'required|string|max:255',
+                'mother' => 'nullable|string|max:255',
+                'date_of_birth' => 'nullable|date',
+                'date_of_arrival' => 'nullable|date',
+                'weight' => 'nullable|numeric|min:0.1',
+                'status' => 'nullable|string|max:255',
+                'color' => 'nullable|string|max:255', 
+            ]);
 
-        $cattle = Cattle::findOrFail($cattleId);
-        // Update attributes here...
-        $cattle->save();
+            $name = str_replace(' ', '', strtoupper($request->input('name')));
+            $mother = str_replace(' ', '', strtoupper($request->input('mother')));
 
-        return redirect('/cattle')->with('success', 'Cattle updated successfully.');
+            $cattleId = $request->input('cattle_id');
+            $cattle = Cattle::findOrFail($cattleId);
+            $cattle->name = $name;
+            $cattle->age = $validatedData['age'];
+            $cattle->sex = $validatedData['sex'];
+            $cattle->breed = $validatedData['breed'];
+            $cattle->mother = $mother;
+            $cattle->date_of_birth = $validatedData['date_of_birth'];
+            $cattle->date_of_arrival = $validatedData['date_of_arrival'];
+            $cattle->weight = $validatedData['weight'];
+            $cattle->status = $validatedData['status'];
+            $cattle->color = $validatedData['color']; 
+            $cattle->save();
+
+            return redirect('/cattle')->with('success', 'Cattle updated successfully.');
+        } else {
+            $cattleId = $request->input('cattle_id');
+            $cattle = Cattle::findOrFail($cattleId);
+            return view('cattle.edit', compact('cattle'));
+        }
     }
 
     public function destroy(Cattle $cattle)
@@ -74,19 +104,23 @@ class CattleController extends Controller
 
     public function getFemaleCattle()
     {
-        $items = Cattle::where('sex', 'female')->get();
+        $items = Cattle::where('sex', 'female')
+                    ->whereNotIn('status',['dead','sold'])
+                    ->get();
         return view('cattle.show', compact('items'));
     }
 
     public function getMaleCattle()
     {
-        $items = Cattle::where('sex', 'male')->get();
+        $items = Cattle::where('sex', 'male')
+                    ->whereNotIn('status',['dead','sold'])
+                    ->get();
         return view('cattle.show', compact('items'));
     }
 
     public function getCattleForSale()
     {
-        $items = Cattle::where('status', 'fattenning')->get();
+        $items = Cattle::where('status', 'fattening')->get();
         return view('cattle.show', compact('items'));
     }
 

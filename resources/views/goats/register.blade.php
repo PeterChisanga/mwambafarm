@@ -8,6 +8,11 @@
     </div>
     <div class="row mt-4">
         <div class="col-md-6 offset-md-3">
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
             <form action="/goats/register" method="POST">
                 @csrf
                 <div class="form-group">

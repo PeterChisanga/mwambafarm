@@ -49,7 +49,7 @@
                 <div class="form-group">
                     <label for="status">Status <strong class="text-danger">*</strong></label>
                     <select class="form-control" id="status" name="status">
-                        <option value="fattenning" @if($pig->status == 'fattenning') selected @endif>Fattenning</option>
+                        <option value="fattening" @if($pig->status == 'fattening') selected @endif>Fattening</option>
                         <option value="dead" @if($pig->status == 'dead') selected @endif>Dead</option>
                         <option value="sold" @if($pig->status == 'sold') selected @endif>Sold</option>
                         <option value="quarantine" @if($pig->status == 'quarantine') selected @endif>Quarantine</option>

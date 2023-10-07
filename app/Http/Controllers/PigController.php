@@ -9,7 +9,7 @@ class PigController extends Controller
 {
     public function index()
     {
-        $pigs = Pig::all();
+        $pigs = Pig::whereNotIn('status', ['dead', 'sold'])->get();
         return view('pigs.index', compact('pigs'));
     }
 
@@ -20,10 +20,6 @@ class PigController extends Controller
 
     public function register(Request $request)
     {
-        // if (!session()->get('adminUser')) {
-        //     return redirect()->route('admin.login');
-        // }
-
         if ($request->isMethod('post')) {
             $request->validate([
                 'name' => 'required|string|max:255',
@@ -37,12 +33,21 @@ class PigController extends Controller
                 'status' => 'nullable|string|max:255',
             ]);
 
+            $name = str_replace(' ', '', strtoupper($request->input('name')));
+            $mother = str_replace(' ', '', strtoupper($request->input('mother')));
+
+            if (Pig::where('name', $name)
+                ->whereNotIn('status', ['dead', 'sold'])
+                ->exists()) {
+                return redirect('/pigs/register')->with('error', 'Pig with the same name already exists.');
+            }
+
             $pig = new Pig();
-            $pig->name = $request->input('name');
+            $pig->name = $name ;
             $pig->age = $request->input('age');
             $pig->sex = $request->input('sex');
             $pig->breed = $request->input('breed');
-            $pig->mother = $request->input('mother');
+            $pig->mother = $mother;
             $pig->date_of_birth = $request->input('date_of_birth');
             $pig->date_of_arrival = $request->input('date_of_arrival');
             $pig->weight = $request->input('weight');
@@ -50,7 +55,6 @@ class PigController extends Controller
             $pig->save();
 
             return redirect('/pigs')->with('success', 'Pig registered successfully.');
-
         }
     }
 
@@ -59,7 +63,7 @@ class PigController extends Controller
         return view('pigs.edit', compact('pig'));
     }
 
-    public function edit(Request $request)
+    public function edit(Request $request, $pigId)
     {
         if ($request->isMethod('post')) {
             $validatedData = $request->validate([
@@ -72,28 +76,27 @@ class PigController extends Controller
                 'date_of_arrival' => 'nullable|date',
                 'weight' => 'nullable|numeric|min:0.1',
                 'status' => 'nullable|string|max:255',
-                'color' => 'nullable|string|max:255', 
             ]);
 
-            $cattleId = $request->input('cattle_id');
-            $cattle = Cattle::findOrFail($cattleId);
-            $cattle->name = $validatedData['name'];
-            $cattle->age = $validatedData['age'];
-            $cattle->sex = $validatedData['sex'];
-            $cattle->breed = $validatedData['breed'];
-            $cattle->mother = $validatedData['mother'];
-            $cattle->date_of_birth = $validatedData['date_of_birth'];
-            $cattle->date_of_arrival = $validatedData['date_of_arrival'];
-            $cattle->weight = $validatedData['weight'];
-            $cattle->status = $validatedData['status'];
-            $cattle->color = $validatedData['color']; 
-            $cattle->save();
+            $name = str_replace(' ', '', strtoupper($request->input('name')));
+            $mother = str_replace(' ', '', strtoupper($request->input('mother')));
 
-            return redirect('/cattle')->with('success', 'Cattle updated successfully.');
+            $pig = Pig::findOrFail($pigId);
+            $pig->name = $name;
+            $pig->age = $validatedData['age'];
+            $pig->sex = $validatedData['sex'];
+            $pig->breed = $validatedData['breed'];
+            $pig->mother = $mother;
+            $pig->date_of_birth = $validatedData['date_of_birth'];
+            $pig->date_of_arrival = $validatedData['date_of_arrival'];
+            $pig->weight = $validatedData['weight'];
+            $pig->status = $validatedData['status'];
+            $pig->save();
+
+            return redirect('/pigs')->with('success', 'Pig updated successfully.');
         } else {
-            $cattleId = $request->input('cattle_id');
-            $cattle = Cattle::findOrFail($cattleId);
-            return view('cattle.edit', compact('cattle'));
+            $pig = Pig::findOrFail($pigId);
+            return view('pigs.edit', compact('pig'));
         }
     }
 
@@ -106,20 +109,26 @@ class PigController extends Controller
 
     public function getFemalePigs()
     {
-        $femalePigs = Pig::where('sex', 'female')->get();
+        $femalePigs = Pig::where('sex', 'female')
+                        ->whereNotIn('status', ['sold', 'dead'])
+                        ->get();
+
         return view('pigs.females', compact('femalePigs'));
     }
 
     public function getMalePigs()
     {
-        $malePigs = Pig::where('sex', 'male')->get();
+        $malePigs = Pig::where('sex', 'male')
+                    ->whereNotIn('status', ['sold', 'dead'])
+                    ->get();
+
         return view('pigs.males', compact('malePigs'));
     }
 
     public function getPigsForSale()
     {
         $pigsForSale = Pig::where('status', 'fattening')->get();
-        return view('pigs.fattenning', compact('pigsForSale'));
+        return view('pigs.fattening', compact('pigsForSale'));
     }
 
     public function getDeadPigs()

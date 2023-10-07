@@ -9,7 +9,7 @@ class SheepController extends Controller
 {
     public function index()
     {
-        $sheep = Sheep::all();
+        $sheep = Sheep::whereNotIn('status',['dead','sold'])->get();
         return view('sheep.index', compact('sheep'));
     }
 
@@ -33,12 +33,21 @@ class SheepController extends Controller
             'color' => 'nullable|string|max:255', 
         ]);
 
+        $name = str_replace(' ', '', strtoupper($request->input('name')));
+        $mother = str_replace(' ', '', strtoupper($request->input('mother')));
+
+        if (Sheep::where('name', $name)
+            ->whereNotIn('status', ['dead', 'sold'])
+            ->exists()) {
+            return redirect('/sheep/register')->with('error', 'Sheep with the same name already exists.');
+        }
+
         $sheep = new Sheep();
-        $sheep->name = $request->input('name');
+        $sheep->name = $name;
         $sheep->age = $request->input('age');
         $sheep->sex = $request->input('sex');
         $sheep->breed = $request->input('breed');
-        $sheep->mother = $request->input('mother');
+        $sheep->mother = $mother;
         $sheep->date_of_birth = $request->input('date_of_birth');
         $sheep->date_of_arrival = $request->input('date_of_arrival');
         $sheep->weight = $request->input('weight');
@@ -69,13 +78,16 @@ class SheepController extends Controller
             'color' => 'nullable|string|max:255', 
         ]);
 
+        $name = str_replace(' ', '', strtoupper($request->input('name')));
+        $mother = str_replace(' ', '', strtoupper($request->input('mother')));
+
         $sheep = Sheep::findOrFail($sheepId);
 
-        $sheep->name = $validatedData['name'];
+        $sheep->name = $name;
         $sheep->age = $validatedData['age'];
         $sheep->sex = $validatedData['sex'];
         $sheep->breed = $validatedData['breed'];
-        $sheep->mother = $validatedData['mother'];
+        $sheep->mother = $mother;
         $sheep->date_of_birth = $validatedData['date_of_birth'];
         $sheep->date_of_arrival = $validatedData['date_of_arrival'];
         $sheep->weight = $validatedData['weight'];
@@ -97,14 +109,18 @@ class SheepController extends Controller
 
     public function getFemaleSheep()
     {
-        $items = Sheep::where('sex', 'female')->get();
+        $items = Sheep::where('sex', 'female')
+                    ->whereNotIn('status',['dead', 'sold'])
+                    ->get();
         $heading = 'Female Sheep'; 
         return view('sheep.show', compact('items', 'heading'));
     }
 
     public function getMaleSheep()
     {
-        $items = Sheep::where('sex', 'male')->get();
+        $items = Sheep::where('sex', 'male')
+                    ->whereNotIn('status',['dead', 'sold'])
+                    ->get();
         $heading = 'Male Sheep'; 
         return view('sheep.show', compact('items', 'heading'));
     }

@@ -6,6 +6,7 @@
     <div class="d-md-flex justify-content-md-between mt-4">
         <div class="mb-2 mb-md-0">
             <a href="/goats/register" class="btn btn-primary btn-sm mr-2">Register Goat</a>
+            <a href="/goats" class="btn btn-secondary btn-sm mr-2">All Goats</a>
             <a href="/goats/females" class="btn btn-info btn-sm mr-2">Female Goats</a>
             <a href="/goats/males" class="btn btn-info btn-sm">Male Goats</a>
             <a href="/feeds/goats" class="btn btn-success btn-sm mt-2">Feed</a>

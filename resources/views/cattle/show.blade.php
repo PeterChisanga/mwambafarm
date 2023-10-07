@@ -1,6 +1,11 @@
 @extends('master')
 @section('content')
 <div class="container">
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
     <h1 class="mt-5">All Cattle</h1>
     <div class="d-md-flex justify-content-md-between mt-4">
         <div class="mb-2 mb-md-0">

@@ -2,6 +2,11 @@
 
 @section('content')
 <div class="container">
+    @if (session('success'))
+        <div class="alert alert-success mt-5">
+            {{ session('success') }}
+        </div>
+    @endif
     <h1 class="mt-5">All Goats</h1>
     <div class="d-md-flex justify-content-md-between mt-4">
         <div class="mb-2 mb-md-0">

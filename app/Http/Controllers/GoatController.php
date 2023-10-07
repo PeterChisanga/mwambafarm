@@ -9,7 +9,7 @@ class GoatController extends Controller
 {
     public function index()
     {
-        $goats = Goat::all();
+        $goats = Goat::whereNotIn('status',['sold','dead'])->get();
         return view('goats.index', compact('goats'));
     }
 
@@ -30,15 +30,24 @@ class GoatController extends Controller
             'date_of_arrival' => 'nullable|date',
             'weight' => 'nullable|numeric|min:0.1',
             'status' => 'nullable|string|max:255',
-            'color' => 'nullable|string|max:255', // Added color field
+            'color' => 'nullable|string|max:255', 
         ]);
 
+        $name = str_replace(' ', '', strtoupper($request->input('name')));
+        $mother = str_replace(' ', '', strtoupper($request->input('mother')));
+
+        if (Goat::where('name', $name)
+            ->whereNotIn('status', ['dead', 'sold'])
+            ->exists()) {
+            return redirect('/goats/register')->with('error', 'Goat with the same name already exists.');
+        }
+
         $goat = new Goat();
-        $goat->name = $request->input('name');
+        $goat->name = $name;
         $goat->age = $request->input('age');
         $goat->sex = $request->input('sex');
         $goat->breed = $request->input('breed');
-        $goat->mother = $request->input('mother');
+        $goat->mother = $mother;
         $goat->date_of_birth = $request->input('date_of_birth');
         $goat->date_of_arrival = $request->input('date_of_arrival');
         $goat->weight = $request->input('weight');
@@ -69,13 +78,16 @@ class GoatController extends Controller
             'color' => 'nullable|string|max:255', 
         ]);
 
+        $name = str_replace(' ', '', strtoupper($request->input('name')));
+        $mother = str_replace(' ', '', strtoupper($request->input('mother')));
+
         $goat = Goat::findOrFail($goatId);
 
-        $goat->name = $validatedData['name'];
+        $goat->name = $name;
         $goat->age = $validatedData['age'];
         $goat->sex = $validatedData['sex'];
         $goat->breed = $validatedData['breed'];
-        $goat->mother = $validatedData['mother'];
+        $goat->mother = $mother;
         $goat->date_of_birth = $validatedData['date_of_birth'];
         $goat->date_of_arrival = $validatedData['date_of_arrival'];
         $goat->weight = $validatedData['weight'];
@@ -96,14 +108,18 @@ class GoatController extends Controller
 
     public function getFemaleGoats()
     {
-        $items = Goat::where('sex', 'female')->get();
+        $items = Goat::where('sex', 'female')
+                    ->whereNotIn('status', ['dead','sold'])
+                    ->get();
         $heading = 'Female Goats'; 
         return view('goats.show', compact('items', 'heading'));
     }
 
     public function getMaleGoats()
     {
-        $items = Goat::where('sex', 'male')->get();
+        $items = Goat::where('sex', 'male')
+                    ->whereNotIn('status', ['dead','sold'])
+                    ->get();
         $heading = 'Male Goats'; 
         return view('goats.show', compact('items', 'heading'));
     }
@@ -135,6 +151,5 @@ class GoatController extends Controller
         $heading = 'Sold Goats'; 
         return view('goats.show', compact('items', 'heading'));
     }
-
 }
 
